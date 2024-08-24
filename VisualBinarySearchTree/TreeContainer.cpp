@@ -88,7 +88,7 @@ bool TreeContainer::find(int num, shared_ptr<Node> node) {
 std::vector<int> TreeContainer::deepSearch(std::shared_ptr<Node> head_, int lv)
 {
 	std::vector<int> treeList;
-	if (head_ == nullptr) {
+	if (!head_) {
 		return treeList; // Return empty if the tree is empty
 	}
 
@@ -98,7 +98,7 @@ std::vector<int> TreeContainer::deepSearch(std::shared_ptr<Node> head_, int lv)
 	while (!Bqueue.empty()) {
 		// Getting current node and the depth.
 		std::shared_ptr<Node> node = Bqueue.front().first;
-		int                  depth = Bqueue.front().second;
+		int depth                  = Bqueue.front().second;
 		Bqueue.pop();
 
 		// If we are at desired depth on the node, then add it to the queue.
@@ -107,16 +107,23 @@ std::vector<int> TreeContainer::deepSearch(std::shared_ptr<Node> head_, int lv)
 
 		// If the depth is less than the desired depth, enqueue children
 		if (depth < lv) {
-			if (node->left) {
-				Bqueue.push({ node->left, depth + 1 });
+			if (node) {
+				if (node->left) {
+					Bqueue.push({ node->left, depth + 1 });
+				}
+				else {
+					Bqueue.push({ nullptr, depth + 1 });
+				}
+				if (node->right) {
+					Bqueue.push({ node->right, depth + 1 });
+				}
+				else {
+					Bqueue.push({ nullptr, depth + 1 });
+				}
 			}
 			else {
+				// Accounting for children if parent is null.
 				Bqueue.push({ nullptr, depth + 1 });
-			}
-			if (node->right) {
-				Bqueue.push({ node->right, depth + 1 });
-			}
-			else {
 				Bqueue.push({ nullptr, depth + 1 });
 			}
 		}

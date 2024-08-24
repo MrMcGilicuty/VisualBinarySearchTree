@@ -14,8 +14,8 @@ mutex treeMutex;
 static void generateTree(shared_ptr<TreeContainer> BinaryTree, int size) {
 
     // Numbers between 0-100.
-    for (int x = 0; x <= size; x++) {
-        int insert = rand() % 10 + 1;
+    for (int x = 0; x < size; x++) {
+        int insert = rand() % size + 1;
         Node newNode(insert);
 
         // Creates a new node and adds it to the list.
@@ -26,7 +26,7 @@ static void generateTree(shared_ptr<TreeContainer> BinaryTree, int size) {
         }
 
         // Simulated delay so its not instant.
-        this_thread::sleep_for(chrono::milliseconds(100));
+        //this_thread::sleep_for(chrono::milliseconds(50));
     }
     cout << "\nFinished Tree Generation\n";
 }
@@ -39,8 +39,12 @@ int main()
 
     // Setup.
 
-    const sf::Vector2u window_size{2160, 1240};
-    sf::RenderWindow window(sf::VideoMode(window_size.x, window_size.y), "BLN Tree", sf::Style::Default);
+    sf::Font font;
+    font.loadFromFile("Caviar Dreams Bold.ttf");
+    const sf::Vector2u window_size{2560, 1440};
+    sf::RenderWindow window(sf::VideoMode(window_size.x, window_size.y), "BLN Tree", sf::Style::Fullscreen);
+    window.clear(sf::Color(25, 25, 25));
+    window.display();
     window.setFramerateLimit(60);
     window.setMouseCursorVisible(true);
     window.setKeyRepeatEnabled(false);
@@ -69,24 +73,39 @@ int main()
         // Do everything with reading data here
         {
             lock_guard<mutex> lock(treeMutex);
-            for (int x = 0; x < size_tree; x++) {
+            for (int y = 0; y < size_tree; y++) {
                 // Finds the vector of every node on 'x' depth level
-                vector<int> treeList = BSTree->deepSearch(BSTree->head, x);
-                for (int num : treeList) {
+                vector<int> treeList = BSTree->deepSearch(BSTree->head, y);
+                for (int x = 1; x <= treeList.size(); x++) {
+                    int num = treeList[x - 1];
                     if (num == -1) {
                         continue;
                     }
 
-                    const float paddingWidth  = 100;
-                    const float paddingHeight = 60;
-                    sf::CircleShape circle(1500 / size_tree); // radius
+                    const float paddingWidth  = 50;
+                    const float paddingHeight = 30;
+                    const float circleRadius = 750.0 / size_tree;
+                    sf::CircleShape circle(circleRadius); // radius
                     circle.setOutlineColor(sf::Color::White); // outline color
-                    circle.setOutlineThickness(10); // thickness of the outline
-                    circle.setFillColor(sf::Color::Transparent); // make the inside transparent
-                    circle.setPosition((window_size.x - paddingWidth) / (treeList.size() + 1) + (paddingWidth / 2),
-                                       (window_size.y - paddingHeight) / (x + 1) + (paddingHeight / 2));
+                    circle.setOutlineThickness(5); // thickness of the outline
+                    circle.setFillColor(sf::Color(25, 25, 25));
+                    circle.setPosition(x * (window_size.x / (treeList.size() + 1)),
+                                       y * ((window_size.y - (paddingHeight / maxDepth)) / maxDepth) + paddingHeight);
+
+                    // Create a text object
+                    sf::Text text;
+                    text.setFont(font); // Set the font
+                    text.setCharacterSize(circleRadius / 1.5);
+                    text.setString(to_string(num)); // Set the text string
+                    text.setFillColor(sf::Color::White); // Set the text color
+
+                    // Center the text in the circle
+                    sf::FloatRect textRect = text.getLocalBounds();
+                    text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                    text.setPosition(circle.getPosition().x + circle.getRadius(), circle.getPosition().y + circle.getRadius());
 
                     window.draw(circle);
+                    window.draw(text);
                 }
 
             }
