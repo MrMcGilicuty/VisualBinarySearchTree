@@ -72,6 +72,22 @@ int main()
             for (int x = 0; x < size_tree; x++) {
                 // Finds the vector of every node on 'x' depth level
                 vector<int> treeList = BSTree->deepSearch(BSTree->head, x);
+                for (int num : treeList) {
+                    if (num == -1) {
+                        continue;
+                    }
+
+                    const float paddingWidth  = 100;
+                    const float paddingHeight = 60;
+                    sf::CircleShape circle(1500 / size_tree); // radius
+                    circle.setOutlineColor(sf::Color::White); // outline color
+                    circle.setOutlineThickness(10); // thickness of the outline
+                    circle.setFillColor(sf::Color::Transparent); // make the inside transparent
+                    circle.setPosition((window_size.x - paddingWidth) / (treeList.size() + 1) + (paddingWidth / 2),
+                                       (window_size.y - paddingHeight) / (x + 1) + (paddingHeight / 2));
+
+                    window.draw(circle);
+                }
 
             }
         }
